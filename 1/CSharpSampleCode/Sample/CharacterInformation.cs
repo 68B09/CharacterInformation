@@ -32,6 +32,20 @@ namespace CharacterInformations
 	}
 
 	/// <summary>
+	/// 学年別漢字配当列挙型
+	/// </summary>
+	public enum GakunenbetuKanjis : int
+	{
+		None = 0,
+		S1 = 1,					// 小学1年
+		S2 = 2,					// 小学2年
+		S3 = 3,					// 小学3年
+		S4 = 4,					// 小学4年
+		S5 = 5,					// 小学5年
+		S6 = 6,					// 小学6年
+	}
+
+	/// <summary>
 	/// 文字情報辞書クラス
 	/// </summary>
 	public class CharacterInformationDictionary : Dictionary<string, InfomationRecord>
@@ -290,6 +304,15 @@ namespace CharacterInformations
 				if (strwk.Length >= 1) {
 					result.SetETaxAvailable(int.Parse(strwk) != 0);
 				}
+
+				// GakunenbetuKanji
+				if (fields.Length < 5) {
+					break;
+				}
+				strwk = fields[4].Trim();
+				if (strwk.Length >= 1) {
+					result.SetGakunenbetuKanji((GakunenbetuKanjis)int.Parse(strwk));
+				}
 			} while (false);
 
 			return result;
@@ -329,6 +352,7 @@ namespace CharacterInformations
 			SortedDictionary<JISX0213Levels, int> jisx0213levelcount = new SortedDictionary<JISX0213Levels, int>();
 			SortedDictionary<NameTypes, int> nametypecount = new SortedDictionary<NameTypes, int>();
 			SortedDictionary<bool, int> etaxcount = new SortedDictionary<bool, int>();
+			SortedDictionary<GakunenbetuKanjis, int> gakunenbetukanjicount = new SortedDictionary<GakunenbetuKanjis, int>();
 			foreach (InfomationRecord item in this.items.Values) {
 				if (!jisx0213levelcount.ContainsKey(item.JISX0213Level)) {
 					jisx0213levelcount[item.JISX0213Level] = 0;
@@ -344,6 +368,11 @@ namespace CharacterInformations
 					etaxcount[item.ETaxAvailable] = 0;
 				}
 				etaxcount[item.ETaxAvailable]++;
+
+				if (!gakunenbetukanjicount.ContainsKey(item.GakunenbetuKanji)) {
+					gakunenbetukanjicount[item.GakunenbetuKanji] = 0;
+				}
+				gakunenbetukanjicount[item.GakunenbetuKanji]++;
 			}
 
 			// JIS X 0213
@@ -386,6 +415,20 @@ namespace CharacterInformations
 			}
 			sb.AppendLine(" -----");
 			sb.AppendFormat(" Total:{0} (without False:{1})\n", total, totalwithoutnone);
+			sb.AppendLine("");
+
+			// 学年別漢字配当
+			sb.AppendLine("GakunenbetuKanji");
+			total = totalwithoutnone = 0;
+			foreach (KeyValuePair<GakunenbetuKanjis, int> item in gakunenbetukanjicount) {
+				sb.AppendFormat(" {0}:{1}\n", item.Key.ToString(), item.Value);
+				total += item.Value;
+				if (item.Key != GakunenbetuKanjis.None) {
+					totalwithoutnone += item.Value;
+				}
+			}
+			sb.AppendLine(" -----");
+			sb.AppendFormat(" Total:{0} (without None:{1})\n", total, totalwithoutnone);
 			sb.AppendLine("");
 
 			sb.AppendLine("DebugDump out --");
@@ -431,6 +474,10 @@ namespace CharacterInformations
 					if (charInfo.ETaxAvailable) {
 						sb.AppendFormat(" e-Tax");
 					}
+
+					if (charInfo.GakunenbetuKanji != GakunenbetuKanjis.None) {
+						sb.AppendFormat(" {0}", charInfo.GakunenbetuKanji);
+					}
 				}
 
 				sb.AppendLine();
@@ -467,6 +514,11 @@ namespace CharacterInformations
 		public bool ETaxAvailable { get; protected set; }
 
 		/// <summary>
+		/// 学年別漢字配当取得
+		/// </summary>
+		public GakunenbetuKanjis GakunenbetuKanji { get; protected set; }
+
+		/// <summary>
 		/// コンストラクタ
 		/// </summary>
 		public InfomationRecord()
@@ -475,6 +527,7 @@ namespace CharacterInformations
 			this.JISX0213Level = JISX0213Levels.None;
 			this.NameType = NameTypes.None;
 			this.ETaxAvailable = false;
+			this.GakunenbetuKanji = GakunenbetuKanjis.None;
 		}
 
 		/// <summary>
@@ -494,12 +547,13 @@ namespace CharacterInformations
 		/// <param name="pJISX0213Level">JISX0213Levels</param>
 		/// <param name="pNameType">NameTypes</param>
 		/// <param name="pETax">true=e-Taxで利用可能</param>
-		public InfomationRecord(string pKey, JISX0213Levels pJISX0213Level, NameTypes pNameType, bool pETax)
+		public InfomationRecord(string pKey, JISX0213Levels pJISX0213Level, NameTypes pNameType, bool pETax, GakunenbetuKanjis pGakunenbetuKanji)
 		{
 			this.KeyUnicodeString = pKey;
 			this.JISX0213Level = pJISX0213Level;
 			this.NameType = pNameType;
 			this.ETaxAvailable = pETax;
+			this.GakunenbetuKanji = pGakunenbetuKanji;
 		}
 
 		/// <summary>
@@ -539,6 +593,15 @@ namespace CharacterInformations
 		}
 
 		/// <summary>
+		/// 学年別漢字配当設定
+		/// </summary>
+		/// <param name="pGakunen">GakunenbetuKanjis</param>
+		public void SetGakunenbetuKanji(GakunenbetuKanjis pGakunen)
+		{
+			this.GakunenbetuKanji = pGakunen;
+		}
+
+		/// <summary>
 		/// デバッグダンプ
 		/// </summary>
 		[Conditional("DEBUG")]
@@ -547,6 +610,7 @@ namespace CharacterInformations
 			Console.Write("JISX0213:{0}", this.JISX0213Level.ToString());
 			Console.Write(" NameType:{0}", this.NameType.ToString());
 			Console.Write(" e-Tax:{0}", this.ETaxAvailable.ToString());
+			Console.Write(" Gakunen:{0}", this.GakunenbetuKanji.ToString());
 		}
 	}
 }
