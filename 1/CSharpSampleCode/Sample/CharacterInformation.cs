@@ -313,6 +313,16 @@ namespace CharacterInformations
 				if (strwk.Length >= 1) {
 					result.SetGakunenbetuKanji((GakunenbetuKanjis)int.Parse(strwk));
 				}
+
+				// NISAAvailable
+				if (fields.Length < 6) {
+					break;
+				}
+				strwk = fields[5].Trim();
+				if (strwk.Length >= 1) {
+					result.SetNISAAvailable(int.Parse(strwk) != 0);
+				}
+
 			} while (false);
 
 			return result;
@@ -353,6 +363,7 @@ namespace CharacterInformations
 			SortedDictionary<NameTypes, int> nametypecount = new SortedDictionary<NameTypes, int>();
 			SortedDictionary<bool, int> etaxcount = new SortedDictionary<bool, int>();
 			SortedDictionary<GakunenbetuKanjis, int> gakunenbetukanjicount = new SortedDictionary<GakunenbetuKanjis, int>();
+			SortedDictionary<bool, int> nisacount = new SortedDictionary<bool, int>();
 			foreach (InfomationRecord item in this.items.Values) {
 				if (!jisx0213levelcount.ContainsKey(item.JISX0213Level)) {
 					jisx0213levelcount[item.JISX0213Level] = 0;
@@ -373,6 +384,11 @@ namespace CharacterInformations
 					gakunenbetukanjicount[item.GakunenbetuKanji] = 0;
 				}
 				gakunenbetukanjicount[item.GakunenbetuKanji]++;
+
+				if (!nisacount.ContainsKey(item.NISAAvailable)) {
+					nisacount[item.NISAAvailable] = 0;
+				}
+				nisacount[item.NISAAvailable]++;
 			}
 
 			// JIS X 0213
@@ -431,6 +447,21 @@ namespace CharacterInformations
 			sb.AppendFormat(" Total:{0} (without None:{1})\n", total, totalwithoutnone);
 			sb.AppendLine("");
 
+			// NISA
+			sb.AppendLine("NISA");
+			total = totalwithoutnone = 0;
+			foreach (KeyValuePair<bool, int> item in nisacount) {
+				sb.AppendFormat(" {0}:{1}\n", item.Key.ToString(), item.Value);
+				total += item.Value;
+				if (item.Key != false) {
+					totalwithoutnone += item.Value;
+				}
+			}
+			sb.AppendLine(" -----");
+			sb.AppendFormat(" Total:{0} (without False:{1})\n", total, totalwithoutnone);
+			sb.AppendLine("");
+
+			// end
 			sb.AppendLine("DebugDump out --");
 
 			return sb.ToString();
@@ -478,6 +509,10 @@ namespace CharacterInformations
 					if (charInfo.GakunenbetuKanji != GakunenbetuKanjis.None) {
 						sb.AppendFormat(" {0}", charInfo.GakunenbetuKanji);
 					}
+
+					if (charInfo.NISAAvailable) {
+						sb.AppendFormat(" NISA");
+					}
 				}
 
 				sb.AppendLine();
@@ -519,6 +554,11 @@ namespace CharacterInformations
 		public GakunenbetuKanjis GakunenbetuKanji { get; protected set; }
 
 		/// <summary>
+		/// NISAで利用可能
+		/// </summary>
+		public bool NISAAvailable { get; protected set; }
+
+		/// <summary>
 		/// コンストラクタ
 		/// </summary>
 		public InfomationRecord()
@@ -528,6 +568,7 @@ namespace CharacterInformations
 			this.NameType = NameTypes.None;
 			this.ETaxAvailable = false;
 			this.GakunenbetuKanji = GakunenbetuKanjis.None;
+			this.NISAAvailable = false;
 		}
 
 		/// <summary>
@@ -547,13 +588,16 @@ namespace CharacterInformations
 		/// <param name="pJISX0213Level">JISX0213Levels</param>
 		/// <param name="pNameType">NameTypes</param>
 		/// <param name="pETax">true=e-Taxで利用可能</param>
-		public InfomationRecord(string pKey, JISX0213Levels pJISX0213Level, NameTypes pNameType, bool pETax, GakunenbetuKanjis pGakunenbetuKanji)
+		/// <param name="pGakunenbetuKanji">GakunenbetuKanjis</param>
+		/// <param name="pNISA">true=NISAで利用可能</param>
+		public InfomationRecord(string pKey, JISX0213Levels pJISX0213Level, NameTypes pNameType, bool pETax, GakunenbetuKanjis pGakunenbetuKanji, bool pNISA)
 		{
 			this.KeyUnicodeString = pKey;
 			this.JISX0213Level = pJISX0213Level;
 			this.NameType = pNameType;
 			this.ETaxAvailable = pETax;
 			this.GakunenbetuKanji = pGakunenbetuKanji;
+			this.NISAAvailable = pNISA;
 		}
 
 		/// <summary>
@@ -602,6 +646,15 @@ namespace CharacterInformations
 		}
 
 		/// <summary>
+		/// NISA利用可能フラグ設定
+		/// </summary>
+		/// <param name="pAvailable">true=利用可能</param>
+		public void SetNISAAvailable(bool pAvailable)
+		{
+			this.NISAAvailable = pAvailable;
+		}
+
+		/// <summary>
 		/// デバッグダンプ
 		/// </summary>
 		[Conditional("DEBUG")]
@@ -611,6 +664,7 @@ namespace CharacterInformations
 			Console.Write(" NameType:{0}", this.NameType.ToString());
 			Console.Write(" e-Tax:{0}", this.ETaxAvailable.ToString());
 			Console.Write(" Gakunen:{0}", this.GakunenbetuKanji.ToString());
+			Console.Write(" NISA:{0}", this.NISAAvailable.ToString());
 		}
 	}
 }
