@@ -323,6 +323,14 @@ namespace CharacterInformations
 					result.SetNISAAvailable(int.Parse(strwk) != 0);
 				}
 
+				// EELTAXAvailable
+				if (fields.Length < 7) {
+					break;
+				}
+				strwk = fields[6].Trim();
+				if (strwk.Length >= 1) {
+					result.SetELTAXAvailable(int.Parse(strwk) != 0);
+				}
 			} while (false);
 
 			return result;
@@ -364,6 +372,7 @@ namespace CharacterInformations
 			SortedDictionary<bool, int> etaxcount = new SortedDictionary<bool, int>();
 			SortedDictionary<GakunenbetuKanjis, int> gakunenbetukanjicount = new SortedDictionary<GakunenbetuKanjis, int>();
 			SortedDictionary<bool, int> nisacount = new SortedDictionary<bool, int>();
+			SortedDictionary<bool, int> eltaxcount = new SortedDictionary<bool, int>();
 			foreach (InfomationRecord item in this.items.Values) {
 				if (!jisx0213levelcount.ContainsKey(item.JISX0213Level)) {
 					jisx0213levelcount[item.JISX0213Level] = 0;
@@ -389,6 +398,11 @@ namespace CharacterInformations
 					nisacount[item.NISAAvailable] = 0;
 				}
 				nisacount[item.NISAAvailable]++;
+
+				if (!eltaxcount.ContainsKey(item.ELTAXAvailable)) {
+					eltaxcount[item.ELTAXAvailable] = 0;
+				}
+				eltaxcount[item.ELTAXAvailable]++;
 			}
 
 			// JIS X 0213
@@ -461,6 +475,20 @@ namespace CharacterInformations
 			sb.AppendFormat(" Total:{0} (without False:{1})\n", total, totalwithoutnone);
 			sb.AppendLine("");
 
+			// eLTAX
+			sb.AppendLine("eLTAX");
+			total = totalwithoutnone = 0;
+			foreach (KeyValuePair<bool, int> item in eltaxcount) {
+				sb.AppendFormat(" {0}:{1}\n", item.Key.ToString(), item.Value);
+				total += item.Value;
+				if (item.Key != false) {
+					totalwithoutnone += item.Value;
+				}
+			}
+			sb.AppendLine(" -----");
+			sb.AppendFormat(" Total:{0} (without False:{1})\n", total, totalwithoutnone);
+			sb.AppendLine("");
+
 			// end
 			sb.AppendLine("DebugDump out --");
 
@@ -513,6 +541,10 @@ namespace CharacterInformations
 					if (charInfo.NISAAvailable) {
 						sb.AppendFormat(" NISA");
 					}
+
+					if (charInfo.ELTAXAvailable) {
+						sb.AppendFormat(" eLTAX");
+					}
 				}
 
 				sb.AppendLine();
@@ -559,6 +591,11 @@ namespace CharacterInformations
 		public bool NISAAvailable { get; protected set; }
 
 		/// <summary>
+		/// eLTAXで利用可能
+		/// </summary>
+		public bool ELTAXAvailable { get; protected set; }
+
+		/// <summary>
 		/// コンストラクタ
 		/// </summary>
 		public InfomationRecord()
@@ -569,6 +606,7 @@ namespace CharacterInformations
 			this.ETaxAvailable = false;
 			this.GakunenbetuKanji = GakunenbetuKanjis.None;
 			this.NISAAvailable = false;
+			this.ELTAXAvailable = false;
 		}
 
 		/// <summary>
@@ -590,7 +628,8 @@ namespace CharacterInformations
 		/// <param name="pETax">true=e-Taxで利用可能</param>
 		/// <param name="pGakunenbetuKanji">GakunenbetuKanjis</param>
 		/// <param name="pNISA">true=NISAで利用可能</param>
-		public InfomationRecord(string pKey, JISX0213Levels pJISX0213Level, NameTypes pNameType, bool pETax, GakunenbetuKanjis pGakunenbetuKanji, bool pNISA)
+		/// <param name="pELTAX">true=eLTAXで利用可能</param>
+		public InfomationRecord(string pKey, JISX0213Levels pJISX0213Level, NameTypes pNameType, bool pETax, GakunenbetuKanjis pGakunenbetuKanji, bool pNISA, bool pELTAX)
 		{
 			this.KeyUnicodeString = pKey;
 			this.JISX0213Level = pJISX0213Level;
@@ -598,6 +637,7 @@ namespace CharacterInformations
 			this.ETaxAvailable = pETax;
 			this.GakunenbetuKanji = pGakunenbetuKanji;
 			this.NISAAvailable = pNISA;
+			this.ELTAXAvailable = pELTAX;
 		}
 
 		/// <summary>
@@ -655,6 +695,15 @@ namespace CharacterInformations
 		}
 
 		/// <summary>
+		/// eLTAX利用可能フラグ設定
+		/// </summary>
+		/// <param name="pAvailable">true=利用可能</param>
+		public void SetELTAXAvailable(bool pAvailable)
+		{
+			this.ELTAXAvailable = pAvailable;
+		}
+
+		/// <summary>
 		/// デバッグダンプ
 		/// </summary>
 		[Conditional("DEBUG")]
@@ -665,6 +714,7 @@ namespace CharacterInformations
 			Console.Write(" e-Tax:{0}", this.ETaxAvailable.ToString());
 			Console.Write(" Gakunen:{0}", this.GakunenbetuKanji.ToString());
 			Console.Write(" NISA:{0}", this.NISAAvailable.ToString());
+			Console.Write(" eLTAX:{0}", this.ELTAXAvailable.ToString());
 		}
 	}
 }
