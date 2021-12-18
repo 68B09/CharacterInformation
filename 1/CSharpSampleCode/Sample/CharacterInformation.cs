@@ -151,7 +151,7 @@ namespace CharacterInformations
 		}
 
 		/// <summary>
-		/// 定義データ読み込み
+		/// 定義データ読み込み(ファイルパス渡し)
 		/// </summary>
 		/// <param name="pSettingFilePath">定義ファイルのパス</param>
 		/// <remarks>
@@ -159,39 +159,53 @@ namespace CharacterInformations
 		/// </remarks>
 		public void Load(string pSettingFilePath)
 		{
+			using (StreamReader reader = new StreamReader(pSettingFilePath, Encoding.UTF8)) {
+				this.Load(reader);
+				reader.Close();
+			}
+		}
+
+		/// <summary>
+		/// 定義データ読み込み(TextReader渡し)
+		/// </summary>
+		/// <param name="pReader">TextReader</param>
+		/// <remarks>
+		/// 定義データを読み込みインスタンスを初期化する。
+		/// </remarks>
+		public void Load(TextReader pReader)
+		{
 			this.items.Clear();
 			this.majorVer = 0;
 			this.minorVer = 0;
 
 			int dataCount = 0;
 
-			using (StreamReader reader = new StreamReader(pSettingFilePath, Encoding.UTF8)) {
-				while (!reader.EndOfStream) {
-					string line = reader.ReadLine();
-					if ((line.Length == 0) || (line[0] == '#')) {
-						continue;
-					}
-
-					dataCount++;
-
-					if (dataCount == 1) {
-						string[] fields = line.Split('.');
-
-						this.majorVer = int.Parse(fields[0]);
-						if (majorVer != 1) {
-							throw new InvalidDataException("認識できないデータ(バージョン)");
-						}
-
-						this.minorVer = int.Parse(fields[1]);
-
-						continue;
-					}
-
-					InfomationRecord rec = this.MakeInformationRecord(line);
-					this.items[rec.KeyUnicodeString] = rec;
+			while (true) {
+				string line = pReader.ReadLine();
+				if (line == null) {
+					break;
+				}
+				if ((line.Length == 0) || (line[0] == '#')) {
+					continue;
 				}
 
-				reader.Close();
+				dataCount++;
+
+				if (dataCount == 1) {
+					string[] fields = line.Split('.');
+
+					this.majorVer = int.Parse(fields[0]);
+					if (majorVer != 1) {
+						throw new InvalidDataException("認識できないデータ(バージョン)");
+					}
+
+					this.minorVer = int.Parse(fields[1]);
+
+					continue;
+				}
+
+				InfomationRecord rec = this.MakeInformationRecord(line);
+				this.items[rec.KeyUnicodeString] = rec;
 			}
 		}
 
