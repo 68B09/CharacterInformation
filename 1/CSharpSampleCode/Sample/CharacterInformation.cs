@@ -275,62 +275,97 @@ namespace CharacterInformations
 			}
 
 			do {
+				int idx = 0;
+
 				// key
-				result.SetUnicodeKey(MakeStringFromCodePoints(fields[0]));
+				result.SetUnicodeKey(MakeStringFromCodePoints(fields[idx]));
+				idx++;
 
 				// JISX0213Levels
-				if (fields.Length < 2) {
+				if (fields.Length <= idx) {
 					break;
 				}
-				string strwk = fields[1].Trim();
+				string strwk = fields[idx].Trim();
 				if (strwk.Length >= 1) {
 					result.SetJISX0213Level((JISX0213Levels)int.Parse(strwk));
 				}
+				idx++;
 
 				// NameTypes
-				if (fields.Length < 3) {
+				if (fields.Length <= idx) {
 					break;
 				}
-				strwk = fields[2].Trim();
+				strwk = fields[idx].Trim();
 				if (strwk.Length >= 1) {
 					result.SetNameType((NameTypes)int.Parse(strwk));
 				}
+				idx++;
 
 				// ETaxAvailable
-				if (fields.Length < 4) {
+				if (fields.Length <= idx) {
 					break;
 				}
-				strwk = fields[3].Trim();
+				strwk = fields[idx].Trim();
 				if (strwk.Length >= 1) {
 					result.SetETaxAvailable(int.Parse(strwk) != 0);
 				}
+				idx++;
 
 				// GakunenbetuKanji
-				if (fields.Length < 5) {
+				if (fields.Length <= idx) {
 					break;
 				}
-				strwk = fields[4].Trim();
+				strwk = fields[idx].Trim();
 				if (strwk.Length >= 1) {
 					result.SetGakunenbetuKanji((GakunenbetuKanjis)int.Parse(strwk));
 				}
+				idx++;
 
 				// NISAAvailable
-				if (fields.Length < 6) {
+				if (fields.Length <= idx) {
 					break;
 				}
-				strwk = fields[5].Trim();
+				strwk = fields[idx].Trim();
 				if (strwk.Length >= 1) {
 					result.SetNISAAvailable(int.Parse(strwk) != 0);
 				}
+				idx++;
 
 				// EELTAXAvailable
-				if (fields.Length < 7) {
+				if (fields.Length <= idx) {
 					break;
 				}
-				strwk = fields[6].Trim();
+				strwk = fields[idx].Trim();
 				if (strwk.Length >= 1) {
 					result.SetELTAXAvailable(int.Parse(strwk) != 0);
 				}
+				idx++;
+
+				// 組番号 285 BASIC JAPANESE
+				if (fields.Length <= idx) { break; }
+				strwk = fields[idx].Trim();
+				if (strwk.Length >= 1) { result.SetJA_BASIC_JAPANESE(int.Parse(strwk) != 0); }
+				idx++;
+				// 組番号 371 JIS2004 IDEOGRAPHICS EXTENSION
+				if (fields.Length <= idx) { break; }
+				strwk = fields[idx].Trim();
+				if (strwk.Length >= 1) { result.SetJA_JIS2004_IDEOGRAPHICS_EXTENSION(int.Parse(strwk) != 0); }
+				idx++;
+				// 組番号 372 JAPANESE IDEOGRAPHICS SUPPLEMENT
+				if (fields.Length <= idx) { break; }
+				strwk = fields[idx].Trim();
+				if (strwk.Length >= 1) { result.SetJA_JAPANESE_IDEOGRAPHICS_SUPPLEMENT(int.Parse(strwk) != 0); }
+				idx++;
+				// 組番号 286 JAPANESE NON IDEOGRAPHICS EXTENSION
+				if (fields.Length <= idx) { break; }
+				strwk = fields[idx].Trim();
+				if (strwk.Length >= 1) { result.SetJA_JAPANESE_NON_IDEOGRAPHICS_EXTENSION(int.Parse(strwk) != 0); }
+				idx++;
+				// 組番号 287 COMMON JAPANESE
+				if (fields.Length <= idx) { break; }
+				strwk = fields[idx].Trim();
+				if (strwk.Length >= 1) { result.SetJA_COMMON_JAPANESE(int.Parse(strwk) != 0); }
+				idx++;
 			} while (false);
 
 			return result;
@@ -373,36 +408,23 @@ namespace CharacterInformations
 			SortedDictionary<GakunenbetuKanjis, int> gakunenbetukanjicount = new SortedDictionary<GakunenbetuKanjis, int>();
 			SortedDictionary<bool, int> nisacount = new SortedDictionary<bool, int>();
 			SortedDictionary<bool, int> eltaxcount = new SortedDictionary<bool, int>();
+			SortedDictionary<bool, int> jaBJ = new SortedDictionary<bool, int>();
+			SortedDictionary<bool, int> jaJIE = new SortedDictionary<bool, int>();
+			SortedDictionary<bool, int> jaJIS = new SortedDictionary<bool, int>();
+			SortedDictionary<bool, int> jaJNIE = new SortedDictionary<bool, int>();
+			SortedDictionary<bool, int> jaCJ = new SortedDictionary<bool, int>();
 			foreach (InfomationRecord item in this.items.Values) {
-				if (!jisx0213levelcount.ContainsKey(item.JISX0213Level)) {
-					jisx0213levelcount[item.JISX0213Level] = 0;
-				}
-				jisx0213levelcount[item.JISX0213Level]++;
-
-				if (!nametypecount.ContainsKey(item.NameType)) {
-					nametypecount[item.NameType] = 0;
-				}
-				nametypecount[item.NameType]++;
-
-				if (!etaxcount.ContainsKey(item.ETaxAvailable)) {
-					etaxcount[item.ETaxAvailable] = 0;
-				}
-				etaxcount[item.ETaxAvailable]++;
-
-				if (!gakunenbetukanjicount.ContainsKey(item.GakunenbetuKanji)) {
-					gakunenbetukanjicount[item.GakunenbetuKanji] = 0;
-				}
-				gakunenbetukanjicount[item.GakunenbetuKanji]++;
-
-				if (!nisacount.ContainsKey(item.NISAAvailable)) {
-					nisacount[item.NISAAvailable] = 0;
-				}
-				nisacount[item.NISAAvailable]++;
-
-				if (!eltaxcount.ContainsKey(item.ELTAXAvailable)) {
-					eltaxcount[item.ELTAXAvailable] = 0;
-				}
-				eltaxcount[item.ELTAXAvailable]++;
+				jisx0213levelcount.Increment(item.JISX0213Level);
+				nametypecount.Increment(item.NameType);
+				etaxcount.Increment(item.ETaxAvailable);
+				gakunenbetukanjicount.Increment(item.GakunenbetuKanji);
+				nisacount.Increment(item.NISAAvailable);
+				eltaxcount.Increment(item.ELTAXAvailable);
+				jaBJ.Increment(item.JA_BASIC_JAPANESE);
+				jaJIE.Increment(item.JA_JIS2004_IDEOGRAPHICS_EXTENSION);
+				jaJIS.Increment(item.JA_JAPANESE_IDEOGRAPHICS_SUPPLEMENT);
+				jaJNIE.Increment(item.JA_JAPANESE_NON_IDEOGRAPHICS_EXTENSION);
+				jaCJ.Increment(item.JA_COMMON_JAPANESE);
 			}
 
 			// JIS X 0213
@@ -476,24 +498,34 @@ namespace CharacterInformations
 			sb.AppendLine("");
 
 			// eLTAX
-			sb.AppendLine("eLTAX");
-			total = totalwithoutnone = 0;
-			foreach (KeyValuePair<bool, int> item in eltaxcount) {
-				sb.AppendFormat(" {0}:{1}\n", item.Key.ToString(), item.Value);
-				total += item.Value;
-				if (item.Key != false) {
-					totalwithoutnone += item.Value;
-				}
-			}
-			sb.AppendLine(" -----");
-			sb.AppendFormat(" Total:{0} (without False:{1})\n", total, totalwithoutnone);
-			sb.AppendLine("");
+			Dump(sb, "eLTAX", eltaxcount);
+
+			// JA 
+			Dump(sb, "JA BASIC_JAPANESE", jaBJ);
+			Dump(sb, "JA JIS2004_IDEOGRAPHICS_EXTENSION", jaJIE);
+			Dump(sb, "JA JAPANESE_IDEOGRAPHICS_SUPPLEMENT", jaJIS);
+			Dump(sb, "JA JAPANESE_NON_IDEOGRAPHICS_EXTENSION", jaJNIE);
+			Dump(sb, "JA COMMON_JAPANESE", jaCJ);
 
 			// end
 			sb.AppendLine("DebugDump out --");
 
 			return sb.ToString();
 		}
+
+		public void Dump(StringBuilder sb, string pTitle, IDictionary<bool, int> pDic)
+		{
+			sb.AppendLine(pTitle);
+			int total = 0;
+			foreach (KeyValuePair<bool, int> item in pDic) {
+				sb.AppendFormat(" {0}:{1}\n", item.Key.ToString(), item.Value);
+				total += item.Value;
+			}
+			sb.AppendLine(" -----");
+			sb.AppendFormat(" Total:{0}\n", total);
+			sb.AppendLine("");
+		}
+
 
 		static public string DebugStringsDump(CharacterInformation pCharInfo, string pString)
 		{
@@ -522,29 +554,17 @@ namespace CharacterInformations
 
 				InfomationRecord charInfo = pCharInfo[characterList[i]];
 				if (charInfo != null) {
-					if (charInfo.JISX0213Level != JISX0213Levels.None) {
-						sb.AppendFormat(" {0}", charInfo.JISX0213Level);
-					}
-
-					if (charInfo.NameType != NameTypes.None) {
-						sb.AppendFormat(" {0}", charInfo.NameType);
-					}
-
-					if (charInfo.ETaxAvailable) {
-						sb.AppendFormat(" e-Tax");
-					}
-
-					if (charInfo.GakunenbetuKanji != GakunenbetuKanjis.None) {
-						sb.AppendFormat(" {0}", charInfo.GakunenbetuKanji);
-					}
-
-					if (charInfo.NISAAvailable) {
-						sb.AppendFormat(" NISA");
-					}
-
-					if (charInfo.ELTAXAvailable) {
-						sb.AppendFormat(" eLTAX");
-					}
+					if (charInfo.JISX0213Level != JISX0213Levels.None) { sb.AppendFormat(" {0}", charInfo.JISX0213Level); }
+					if (charInfo.NameType != NameTypes.None) { sb.AppendFormat(" {0}", charInfo.NameType); }
+					if (charInfo.ETaxAvailable) { sb.AppendFormat(" e-Tax"); }
+					if (charInfo.GakunenbetuKanji != GakunenbetuKanjis.None) { sb.AppendFormat(" {0}", charInfo.GakunenbetuKanji); }
+					if (charInfo.NISAAvailable) { sb.AppendFormat(" NISA"); }
+					if (charInfo.ELTAXAvailable) { sb.AppendFormat(" eLTAX"); }
+					if (charInfo.JA_BASIC_JAPANESE) { sb.AppendFormat(" JA_BASIC_JAPANESE"); }
+					if (charInfo.JA_JIS2004_IDEOGRAPHICS_EXTENSION) { sb.AppendFormat(" JA_JIS2004_IDEOGRAPHICS_EXTENSION"); }
+					if (charInfo.JA_JAPANESE_IDEOGRAPHICS_SUPPLEMENT) { sb.AppendFormat(" JA_JAPANESE_IDEOGRAPHICS_SUPPLEMENT"); }
+					if (charInfo.JA_JAPANESE_NON_IDEOGRAPHICS_EXTENSION) { sb.AppendFormat(" JA_JAPANESE_NON_IDEOGRAPHICS_EXTENSION"); }
+					if (charInfo.JA_COMMON_JAPANESE) { sb.AppendFormat(" JA_COMMON_JAPANESE"); }
 				}
 
 				sb.AppendLine();
@@ -596,6 +616,31 @@ namespace CharacterInformations
 		public bool ELTAXAvailable { get; protected set; }
 
 		/// <summary>
+		/// 組番号 285 BASIC JAPANESE
+		/// </summary>
+		public bool JA_BASIC_JAPANESE { get; protected set; }
+
+		/// <summary>
+		/// 組番号 371 JIS2004 IDEOGRAPHICS EXTENSION
+		/// </summary>
+		public bool JA_JIS2004_IDEOGRAPHICS_EXTENSION { get; protected set; }
+
+		/// <summary>
+		/// 組番号 372 JAPANESE IDEOGRAPHICS SUPPLEMENT
+		/// </summary>
+		public bool JA_JAPANESE_IDEOGRAPHICS_SUPPLEMENT { get; protected set; }
+
+		/// <summary>
+		/// 組番号 286 JAPANESE NON IDEOGRAPHICS EXTENSION
+		/// </summary>
+		public bool JA_JAPANESE_NON_IDEOGRAPHICS_EXTENSION { get; protected set; }
+
+		/// <summary>
+		/// 組番号 287 COMMON JAPANESE
+		/// </summary>
+		public bool JA_COMMON_JAPANESE { get; protected set; }
+
+		/// <summary>
 		/// コンストラクタ
 		/// </summary>
 		public InfomationRecord()
@@ -607,6 +652,11 @@ namespace CharacterInformations
 			this.GakunenbetuKanji = GakunenbetuKanjis.None;
 			this.NISAAvailable = false;
 			this.ELTAXAvailable = false;
+			this.JA_BASIC_JAPANESE = false;
+			this.JA_JIS2004_IDEOGRAPHICS_EXTENSION = false;
+			this.JA_JAPANESE_IDEOGRAPHICS_SUPPLEMENT = false;
+			this.JA_JAPANESE_NON_IDEOGRAPHICS_EXTENSION = false;
+			this.JA_COMMON_JAPANESE = false;
 		}
 
 		/// <summary>
@@ -629,7 +679,12 @@ namespace CharacterInformations
 		/// <param name="pGakunenbetuKanji">GakunenbetuKanjis</param>
 		/// <param name="pNISA">true=NISAで利用可能</param>
 		/// <param name="pELTAX">true=eLTAXで利用可能</param>
-		public InfomationRecord(string pKey, JISX0213Levels pJISX0213Level, NameTypes pNameType, bool pETax, GakunenbetuKanjis pGakunenbetuKanji, bool pNISA, bool pELTAX)
+		/// <param name="pJABJ">true=組番号 285 BASIC JAPANESE</param>
+		/// <param name="pJAJIE">true=組番号 371 JIS2004 IDEOGRAPHICS EXTENSION</param>
+		/// <param name="pJAJIS">true=組番号 372 JAPANESE IDEOGRAPHICS SUPPLEMENT</param>
+		/// <param name="pJAJNIE">true=組番号 286 JAPANESE NON IDEOGRAPHICS EXTENSION</param>
+		/// <param name="pJACJ">true=組番号 287 COMMON JAPANESE</param>
+		public InfomationRecord(string pKey, JISX0213Levels pJISX0213Level, NameTypes pNameType, bool pETax, GakunenbetuKanjis pGakunenbetuKanji, bool pNISA, bool pELTAX, bool pJABJ, bool pJAJIE, bool pJAJIS, bool pJAJNIE, bool pJACJ)
 		{
 			this.KeyUnicodeString = pKey;
 			this.JISX0213Level = pJISX0213Level;
@@ -638,6 +693,11 @@ namespace CharacterInformations
 			this.GakunenbetuKanji = pGakunenbetuKanji;
 			this.NISAAvailable = pNISA;
 			this.ELTAXAvailable = pELTAX;
+			this.JA_BASIC_JAPANESE = pJABJ;
+			this.JA_JIS2004_IDEOGRAPHICS_EXTENSION = pJAJIE;
+			this.JA_JAPANESE_IDEOGRAPHICS_SUPPLEMENT = pJAJIS;
+			this.JA_JAPANESE_NON_IDEOGRAPHICS_EXTENSION = pJAJNIE;
+			this.JA_COMMON_JAPANESE = pJACJ;
 		}
 
 		/// <summary>
@@ -704,6 +764,51 @@ namespace CharacterInformations
 		}
 
 		/// <summary>
+		/// 組番号 285 BASIC JAPANESEフラグ設定
+		/// </summary>
+		/// <param name="pAvailable">true=利用可能</param>
+		public void SetJA_BASIC_JAPANESE(bool pAvailable)
+		{
+			this.JA_BASIC_JAPANESE = pAvailable;
+		}
+
+		/// <summary>
+		/// 組番号 371 JIS2004 IDEOGRAPHICS EXTENSIONフラグ設定
+		/// </summary>
+		/// <param name="pAvailable">true=利用可能</param>
+		public void SetJA_JIS2004_IDEOGRAPHICS_EXTENSION(bool pAvailable)
+		{
+			this.JA_JIS2004_IDEOGRAPHICS_EXTENSION = pAvailable;
+		}
+
+		/// <summary>
+		/// 組番号 372 JAPANESE IDEOGRAPHICS SUPPLEMENTフラグ設定
+		/// </summary>
+		/// <param name="pAvailable">true=利用可能</param>
+		public void SetJA_JAPANESE_IDEOGRAPHICS_SUPPLEMENT(bool pAvailable)
+		{
+			this.JA_JAPANESE_IDEOGRAPHICS_SUPPLEMENT = pAvailable;
+		}
+
+		/// <summary>
+		/// 組番号 286 JAPANESE NON IDEOGRAPHICS EXTENSIONフラグ設定
+		/// </summary>
+		/// <param name="pAvailable">true=利用可能</param>
+		public void SetJA_JAPANESE_NON_IDEOGRAPHICS_EXTENSION(bool pAvailable)
+		{
+			this.JA_JAPANESE_NON_IDEOGRAPHICS_EXTENSION = pAvailable;
+		}
+
+		/// <summary>
+		/// 組番号 287 COMMON JAPANESEフラグ設定
+		/// </summary>
+		/// <param name="pAvailable">true=利用可能</param>
+		public void SetJA_COMMON_JAPANESE(bool pAvailable)
+		{
+			this.JA_COMMON_JAPANESE = pAvailable;
+		}
+
+		/// <summary>
 		/// デバッグダンプ
 		/// </summary>
 		[Conditional("DEBUG")]
@@ -715,6 +820,25 @@ namespace CharacterInformations
 			Console.Write(" Gakunen:{0}", this.GakunenbetuKanji.ToString());
 			Console.Write(" NISA:{0}", this.NISAAvailable.ToString());
 			Console.Write(" eLTAX:{0}", this.ELTAXAvailable.ToString());
+			Console.Write(" JA_BJ:{0}", this.JA_BASIC_JAPANESE.ToString());
+			Console.Write(" JA_JIE:{0}", this.JA_JIS2004_IDEOGRAPHICS_EXTENSION.ToString());
+			Console.Write(" JA_JIS:{0}", this.JA_JAPANESE_IDEOGRAPHICS_SUPPLEMENT.ToString());
+			Console.Write(" JA_JNIE:{0}", this.JA_JAPANESE_NON_IDEOGRAPHICS_EXTENSION.ToString());
+			Console.Write(" JA_CJ:{0}", this.JA_COMMON_JAPANESE.ToString());
+		}
+	}
+
+	static public class Extends
+	{
+		public static void Increment<TKey>(this SortedDictionary<TKey, int> dict, TKey key)
+		{
+			int value;
+
+			if (dict.TryGetValue(key, out value)) {
+				dict[key] = value + 1;
+			} else {
+				dict[key] = 1;
+			}
 		}
 	}
 }

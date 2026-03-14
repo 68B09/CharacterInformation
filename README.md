@@ -15,6 +15,12 @@ Unicodeコードポイントをキーにして、
 ７、小学校学年別漢字(2017年版、1026文字)の判定  
 ８、NISA((非課税口座内の少額上場株式等に係る配当所得及び譲渡所得等の非課税措置)の申請・届出)使用可能文字の判定  
 ９、eLTAX使用可能文字の判定  
+１０、JIS X 0221の付属書JA、日本文字部分レパートリのうち以下の判定
+　　285 BASIC JAPANESE 基本日本文字集合  
+　　371 JIS2004 IDEOGRAPHICS EXTENSION  JIS2004拡張漢字集合  
+　　372 JAPANESE IDEOGRAPHICS SUPPLEMENT 補助漢字集合  
+　　286 JAPANESE NON IDEOGRAPHICS EXTENSION 拡張非漢字集合  
+　　287 COMMON JAPANESE 通用日本文字集合  
 が行えます。  
 
 使い方
